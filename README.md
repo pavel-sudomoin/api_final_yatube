@@ -1,38 +1,36 @@
-# Спринт 10 для Yandex.Praktikum - REST API для проекта Yatube
+# Проект «API для Yatube
 
 ## Описание проекта
 
 Проект представляет собой REST API для проекта Yatube - социальной сети для публикации личных дневников.
 
-Более подробно описание проекта Yatube представлено в https://github.com/pavel-sudomoin/hw05_final#readme
 
 В данном API реализован следующий функционал:
 * Авторизация по JWT (JSON Web Token) токену
 * Просмотр, создание, удаление и изменение записей (публикаций)
 * Просмотр, создание, удаление и изменение комментариев
 * Просмотр и создание групп
-* Подписка на пользователя
+* Просмотр подписок и возмодность подписаться на пользователя
 
-API разработано в учебных целях для **Yandex.Praktikum**.
 
 ## Используемые технологии
 
-* Django 2.2
-* Python 3.8
+* Django 3.2.16
+* Python 3.9
 * Django Rest Framework
+* JWT + Djoser
 * ReDoc
 
 ## Установка проекта
 
-Клонируйте данный репозиторий на свой компьютер и перейдите в папку проекта.
-<pre><code>git clone https://github.com/pavel-sudomoin/api_final_yatube</code>
-<code>cd api_final_yatube</code></pre>
+Клонировать репозиторий и перейти в него в командной строке.
 
 Создайте и активируйте виртуальное окружение:
 
-<pre><code>python -m venv venv</code>
-<code>source ./venv/Scripts/activate  #для Windows</code>
-<code>source ./venv/bin/activate      #для Linux и macOS</code></pre>
+```bash
+   python -m venv venv</code>
+   source ./venv/Scripts/activate
+```
 
 Установите требуемые зависимости:
 
@@ -57,7 +55,7 @@ API разработано в учебных целях для **Yandex.Praktiku
 * ### Получение токена авторизации
     **Request**
     ```
-        POST /api/v1/token/
+        POST /api/v1/jwt/
         body: {"username": "string", "password": "string"}
     ```
     **Response**
@@ -71,7 +69,7 @@ API разработано в учебных целях для **Yandex.Praktiku
 * ### Обновление токена
     **Request**
     ```
-        POST /api/v1/token/refresh/
+        POST /api/v1/jwt/refresh/
         body: {"refresh": "JRW-refresh-token"}
     ```
     **Response**
@@ -89,16 +87,21 @@ API разработано в учебных целях для **Yandex.Praktiku
     ```
     **Response**
     ```
-        status_code: 200
-        [
-            {
-                "id": 0,
-                "text": "string",
-                "author": "string",
-                "pub_date": "2019-08-24T14:15:22Z"
-            },
-            ...
-        ]
+         {
+           "count": 123,
+           "next": "http://api.example.org/accounts/?offset=400&limit=100",
+           "previous": "http://api.example.org/accounts/?offset=200&limit=100",
+           "results": [
+             {
+               "id": 0,
+               "author": "string",
+               "text": "string",
+               "pub_date": "2021-10-14T20:41:29.648Z",
+               "image": "string",
+               "group": 0
+             }
+           ]
+         }
     ```
 
 * ### Создание новой публикации
@@ -106,17 +109,22 @@ API разработано в учебных целях для **Yandex.Praktiku
     ```
         POST /api/v1/posts/
         headers: {"Authorization": "Bearer <JRW-access-token>"}
-        body: {"text": "string"}
+        body: {
+                 "text": "string",
+                 "image": "string",
+                 "group": 0
+             }
     ```
     **Response**
     ```
-        status_code: 200
-        {
-            "id": 0,
-            "text": "string",
-            "author": "string",
-            "pub_date": "2019-08-24T14:15:22Z"
-        }
+         {
+           "id": 0,
+           "author": "string",
+           "text": "string",
+           "pub_date": "2019-08-24T14:15:22Z",
+           "image": "string",
+           "group": 0
+         }
     ```
 
 * ### Получение публикации по её id
@@ -127,13 +135,14 @@ API разработано в учебных целях для **Yandex.Praktiku
     ```
     **Response**
     ```
-        status_code: 200
-        {
-            "id": <post_id>,
-            "text": "string",
-            "author": "string",
-            "pub_date": "2019-08-24T14:15:22Z"
-        }
+         {
+           "id": 0,
+           "author": "string",
+           "text": "string",
+           "pub_date": "2019-08-24T14:15:22Z",
+           "image": "string",
+           "group": 0
+         }
     ```
 
 * ### Обновление публикации по её id
@@ -145,13 +154,14 @@ API разработано в учебных целях для **Yandex.Praktiku
     ```
     **Response**
     ```
-        status_code: 200
-        {
-            "id": <post_id>,
-            "text": "new_string",
-            "author": "string",
-            "pub_date": "2019-08-24T14:15:22Z"
-        }
+         {
+           "id": 0,
+           "author": "string",
+           "text": "string",
+           "pub_date": "2019-08-24T14:15:22Z",
+           "image": "string",
+           "group": 0
+         }
     ```
 
 * ### Частичное обновление публикации по её id
@@ -163,13 +173,14 @@ API разработано в учебных целях для **Yandex.Praktiku
     ```
     **Response**
     ```
-        status_code: 200
-        {
-            "id": <post_id>,
-            "text": "new_string",
+         {
+            "id": 0,
             "author": "string",
-            "pub_date": "2019-08-24T14:15:22Z"
-        }
+            "text": "string",
+            "pub_date": "2019-08-24T14:15:22Z",
+            "image": "string",
+            "group": 0
+         }
     ```
 
 * ### Удаление публикации по её id
@@ -184,175 +195,6 @@ API разработано в учебных целях для **Yandex.Praktiku
         status_code: 204
     ```
 
-* ### Получение списка всех комментариев
-    #### Request
-    ```
-        GET /api/v1/posts/{post_id}/comments/
-        headers: {"Authorization": "Bearer <JRW-access-token>"}
-    ```
-    **Response**
-    ```
-        status_code: 200
-        [
-            {
-                "id": 0,
-                "text": "string",
-                "author": "string",
-                "pub_date": "2019-08-24T14:15:22Z"
-            },
-            ...
-        ]
-    ```
+## Автор
 
-* ### Создание нового комментария
-    **Request**
-    ```
-        POST /api/v1/posts/{post_id}/comments/
-        headers: {"Authorization": "Bearer <JRW-access-token>"}
-        body: {"text": "string"}
-    ```
-    **Response**
-    ```
-        status_code: 200
-        {
-            "id": 0,
-            "text": "string",
-            "author": "string",
-            "pub_date": "2019-08-24T14:15:22Z"
-        }
-    ```
-
-* ### Получение комментария по его id
-    **Request**
-    ```
-        POST /api/v1/posts/{post_id}/comments/{comment_id}/
-        headers: {"Authorization": "Bearer <JRW-access-token>"}
-    ```
-    **Response**
-    ```
-        status_code: 200
-        {
-            "id": <comment_id>,
-            "text": "string",
-            "author": "string",
-            "pub_date": "2019-08-24T14:15:22Z"
-        }
-    ```
-
-* ### Обновление комментария по его id
-    #### Request
-    ```
-        PUT /api/v1/posts/{post_id}/comments/{comment_id}/
-        headers: {"Authorization": "Bearer <JRW-access-token>"}
-        body: {"text: "new_string"}
-    ```
-    **Response**
-    ```
-        status_code: 200
-        {
-            "id": <comment_id>,
-            "text": "new_string",
-            "author": "string",
-            "pub_date": "2019-08-24T14:15:22Z"
-        }
-    ```
-
-* ### Частичное обновление комментария по его id
-    **Request**
-    ```
-        PATCH /api/v1/posts/{post_id}/comments/{comment_id}/
-        headers: {"Authorization": "Bearer <JRW-access-token>"}
-        body: {"text: "new_string"}
-    ```
-    **Response**
-    ```
-        status_code: 200
-        {
-            "id": <comment_id>,
-            "text": "new_string",
-            "author": "string",
-            "pub_date": "2019-08-24T14:15:22Z"
-        }
-
-* ### Удаление комментария по его id
-    #### Request
-    ```
-        DELETE /api/v1/posts/{post_id}/comments/{comment_id}/
-        headers: {"Authorization": "Bearer <JRW-access-token>"}
-    ```
-    **Response**
-    ```
-        status_code: 204
-    ```
-
-* ### Получение списка всех подписчиков
-    **Request**
-    ```
-        GET /api/v1/follow/?search={username_string}
-        headers: {"Authorization": "Bearer <JRW-access-token>"}
-    ```
-    **Response**
-    ```
-        status_code: 200
-        [
-            {
-                "user": "string",
-                "following": "string"
-            },
-            ...
-        ]
-    ```
-
-* ### Создание подписки
-    **Request**
-    ```
-        POST /api/v1/follow/?user={username_string}
-        headers: {"Authorization": "Bearer <JRW-access-token>"}
-        body: {"following": "string"}
-    ```
-    **Response**
-    ```
-        status_code: 200
-        {
-            "user": "string",
-            "following": "string"
-        }
-    ```
-
-* ### Получение списка всех групп
-    **Request**
-    ```
-        GET /api/v1/follow/group/
-        headers: {"Authorization": "Bearer <JRW-access-token>"}
-    ```
-    **Response**
-    ```
-        status_code: 200
-        [
-            {
-                "title": "string"
-            },
-            ...
-        ]
-    ```
-
-* ### Создание новой группы
-    **Request**
-    ```
-        POST /api/v1/follow/group/
-        headers: {"Authorization": "Bearer <JRW-access-token>"}
-        body: {"title": "string"}
-    ```
-    **Response**
-    ```
-        status_code: 200
-        {
-            "title": "string"
-        }
-    ```
-
-## Авторы
-
-* [Yandex.Praktikum](https://praktikum.yandex.ru/)
-
-* [Судомоин Павел](https://github.com/pavel-sudomoin/)
+* Демин Матвей
